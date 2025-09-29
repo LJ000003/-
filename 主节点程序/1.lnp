@@ -1,0 +1,5 @@
+"main.obj",
+"STARTUP.obj",
+"..\source_data\STCBSP_V3.6.LIB" 
+TO "1" 
+RAMSIZE(256) 

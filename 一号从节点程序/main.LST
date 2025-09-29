@@ -1,0 +1,183 @@
+C51 COMPILER V9.51   MAIN                                                                  09/18/2025 12:23:42 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: D:\software\2025summer\c51_v9.51a\C51\BIN\C51.EXE main.c BROWSE INCDIR(..\..\dhsjhejdhv) DEBUG OBJE
+                    -CTEXTEND TABS(2)
+
+line level    source
+
+*** WARNING C500 IN LINE 1 OF main.c: LICENSE ERROR (R201: INVALID LICENSE ID CODE (LIC))
+
+   1          #include "STC15F2K60S2.H"        //必须。
+   2          #include "sys.H"                 //必须。
+   3          #include "displayer.H" 
+   4          #include "key.h"
+   5          #include "Ir.h"
+   6          #include "beep.h"
+   7          #include "adc.h"
+   8          #define myID 0x01
+   9          code unsigned long SysClock=11059200;         //必须。定义系统工作时钟频率(Hz)，用户必须修改成与实际工作频
+             -率（下载时选择的）一致
+  10          #ifdef _displayer_H_                          //显示模块选用时必须。（数码管显示译码表，用戶可修改、增加等
+             -） 
+  11          code char decode_table[]={0x00,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,0x3f,0x1E,0x6B,0x75, 0x40, 0x4
+             -8,0x76, 
+  12                          /* 序号:   0   1    2    3    4     5    6    7   8    9   10    11   12   13    14     15    
+             - */
+  13                          /* 显示:   wu  1    2    3    4     5    6    7   8    9    0     J    Q    K     zhong_  
+             -中下-   */  
+  14                                   0x3f|0x80,0x06|0x80,0x5b|0x80,0x4f|0x80,0x66|0x80,0x6d|0x80,0x7d|0x80,0x07|0x80,0x
+             -7f|0x80,0x6f|0x80 };  
+  15                       /* 带小数点     0         1         2         3         4         5         6         7      
+             -   8         9        */
+  16          
+  17          #endif
+  18          unsigned char rxd0[4]={myID,0x00,0x00,0x00};  
+  19          unsigned char a=0x00;
+  20          unsigned char rxd[4];      
+  21          unsigned char send[4]={myID,0x00,0x00,0x00};
+  22          unsigned char send1[4]={myID,0x00,0x00,0x00};
+  23          unsigned char send2[4]={myID,0x00,0x00,0x00};
+  24          void myIrRxd_callback()             //接收发过来的匹扑克
+  25          { 
+  26   1        int flag=0;
+  27   1        int i=1;
+  28   1        if(GetIrRxNum() !=0)
+  29   1        {  if((rxd[0] == myID ) )
+  30   2            { 
+  31   3              if(rxd[1]==rxd0[1]&&rxd[2]==rxd0[2]&&rxd[3]==rxd0[3])
+  32   3                  flag=1;
+  33   3              if(flag==1){
+  34   4                for( i=1;i<4;i++)
+  35   4                {
+  36   5                  if(rxd[i]!=0x00)
+  37   5                    send2[i]=rxd[i];
+  38   5                }
+  39   4                Seg7Print(send2[1],0,0,send2[2],0,0,0,send2[3]);
+  40   4              }
+  41   3              for( i=0;i<4;i++)
+  42   3              {
+  43   4                  rxd0[i]=rxd[i];
+  44   4              }
+  45   3              
+  46   3              
+C51 COMPILER V9.51   MAIN                                                                  09/18/2025 12:23:42 PAGE 2   
+
+  47   3              
+  48   3              
+  49   3              
+  50   3              
+  51   3              /*
+  52   3              for( ;i<4;i++)
+  53   3              {
+  54   3                  if(rxd[i]!=0x00)
+  55   3                    send2[i]=rxd[i];
+  56   3              }
+  57   3              Seg7Print(send2[1],0,0,send2[2],0,0,0,send2[3]);*/
+  58   3            }
+  59   2        }
+  60   1      }
+  61          
+  62          void myAdc_callback()         //选择要发出去的牌    
+  63          { 
+  64   1        char Left=GetAdcNavAct(enumAdcNavKeyLeft);
+  65   1        char Center = GetAdcNavAct(enumAdcNavKeyCenter);
+  66   1        char Right = GetAdcNavAct(enumAdcNavKeyRight);
+  67   1        if (Left == enumKeyPress) 
+  68   1        {
+  69   2          send[1]=send2[1];
+  70   2          send2[1]=0x00;
+  71   2          SetBeep(4000,10);
+  72   2          a+=0x80;
+  73   2          LedPrint(a);
+  74   2        }
+  75   1        
+  76   1        if (Center == enumKeyPress) 
+  77   1        {
+  78   2          send[2]=send2[2];
+  79   2          send2[2]=0x00;
+  80   2          SetBeep(4000,10);
+  81   2          a+=0x10;
+  82   2          LedPrint(a);
+  83   2        }
+  84   1        
+  85   1        if (Right == enumKeyPress) 
+  86   1        {
+  87   2          send[3]=send2[3];
+  88   2          send2[3]=0x00;
+  89   2          SetBeep(4000,10);
+  90   2          a+=0x01;
+  91   2          LedPrint(a);
+  92   2        }
+  93   1      }
+  94          
+  95          
+  96          void myKey_callback()
+  97          {
+  98   1        char Key1 = GetKeyAct(enumKey1);
+  99   1        char Key2 = GetKeyAct(enumKey2);
+ 100   1        if (Key1 == enumKeyPress) 
+ 101   1        {
+ 102   2          SetBeep(4000,10);
+ 103   2          IrPrint(send,sizeof(send));
+ 104   2          send1[0]=send[0];
+ 105   2          send1[1]=send[1];
+ 106   2          send1[2]=send[2];
+ 107   2          send1[3]=send[3];
+ 108   2          Seg7Print(send2[1],0,0,send2[2],0,0,0,send2[3]);
+C51 COMPILER V9.51   MAIN                                                                  09/18/2025 12:23:42 PAGE 3   
+
+ 109   2          send[1]=0x00;
+ 110   2          send[2]=0x00;
+ 111   2          send[3]=0x00;
+ 112   2          
+ 113   2        }
+ 114   1        if (Key2 == enumKeyPress) 
+ 115   1        {
+ 116   2          a=0x00;
+ 117   2          LedPrint(a);
+ 118   2          SetBeep(4000,10);
+ 119   2          IrPrint(send1,sizeof(send1));
+ 120   2          //Seg7Print(rxd[1],0,0,rxd[2],0,0,0,rxd[3]);
+ 121   2        }
+ 122   1      }
+ 123          
+ 124          
+ 125          void main() 
+ 126          { 
+ 127   1        KeyInit();
+ 128   1        BeepInit();
+ 129   1        DisplayerInit(); 
+ 130   1        AdcInit(ADCexpEXT); 
+ 131   1        IrInit(NEC_R05d);
+ 132   1        LedPrint(0);
+ 133   1        SetBeep(4000,50);
+ 134   1        SetDisplayerArea(0,7);
+ 135   1        Seg7Print(14,14,14,myID,14,14,14,14);
+ 136   1       
+ 137   1        SetIrRxd(rxd,sizeof(rxd)); 
+ 138   1        SetEventCallBack(enumEventIrRxd, myIrRxd_callback);  //红外
+ 139   1        SetEventCallBack(enumEventKey, myKey_callback);   //按键 
+ 140   1        SetEventCallBack(enumEventNav, myAdc_callback);    //导航
+ 141   1        //SetEventCallBack(enumEventKey, myKey_callback);
+ 142   1        MySTC_Init();     
+ 143   1        while(1)              
+ 144   1          { MySTC_OS();    
+ 145   2          }              
+ 146   1      }                 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    486    ----
+   CONSTANT SIZE    =     31    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     21       9
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

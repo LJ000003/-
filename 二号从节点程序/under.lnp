@@ -1,0 +1,4 @@
+"main.obj",
+"..\..\10\source\STCBSP_V3.6.LIB" 
+TO "under" 
+RAMSIZE(256) 
